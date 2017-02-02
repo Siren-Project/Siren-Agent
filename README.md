@@ -12,6 +12,3 @@ or
 
 `./run_agent.sh`
 
-
-## TODO
-Get host information
