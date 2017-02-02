@@ -52,6 +52,7 @@ class Agent:
 
     '''Get network information from system'''
     def update_net(self):
+        print "Updating network info"
         # Look through all interfaces and get ip addresses
         for interface in netifaces.interfaces():
             if (not "lo" in interface):
@@ -74,12 +75,15 @@ class Agent:
             if(IP(self.interface_dict[interface]).iptype() == "PUBLIC"):
                 print "Public address found :" + self.interface_dict[interface]
                 self.node_ip = self.interface_dict[interface]
+            else:
+                print "Discarding private ip " + self.interface_dict[interface]
         if self.node_ip == None and len(self.interface_dict)>0:
             self.node_ip = self.interface_dict.values()[0]
 
 
     '''Get information about the system'''
     def update_sys(self):
+        print "Getting system info"
         self.load = os.getloadavg()
         self.up_time = uptime()
         self.sys_stats = {'load':self.load, 'uptime':self.up_time}
@@ -88,6 +92,7 @@ class Agent:
     '''Perform network tests against anchor nodes'''
     def gather_net_stats(self):
         #Do ping to all anchor nodes
+        print "Gathering network stats"
         self.anchor_stats = {}
         for anchor_ip in self.anchors:
             try:
@@ -124,6 +129,7 @@ class Agent:
 
     '''Send all stats to discovery server'''
     def report_stats(self):
+        print "Sending stats"
         data = {"ip": self.node_ip, "anchor_stats": self.anchor_stats, "system_stats": self.sys_stats}
         req = urllib2.Request('http://' + self.server_ip + ':61112/nodes/register_node')
         req.add_header('Content-Type', 'application/json')
