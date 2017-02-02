@@ -63,7 +63,8 @@ class Agent:
                             if (len(tmp_ip) == 31):
                                 # Cut metadata from IPv6 addr
                                 tmp_ip = tmp_ip[:25]
-                            self.interface_dict[interface] = tmp_ip
+                            if not '%' in tmp_ip:
+                                self.interface_dict[interface] = tmp_ip
 
         for interface in self.interface_dict:
             if(IP(self.interface_dict[interface]).iptype() == "PUBLIC"):
