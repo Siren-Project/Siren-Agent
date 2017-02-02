@@ -21,7 +21,12 @@ from subprocess import call
 class Agent:
     def __init__(self):
         # Read server ip
-        print "Starting agent"
+
+
+        logging.basicConfig(level=logging.DEBUG)
+
+
+        logging.debug("Starting agent")
 
         with open('config.json') as json_data:
             self.data = json.load(json_data)
@@ -41,7 +46,7 @@ class Agent:
     '''Repeats tests and reports to discovery server'''
     def agent_daemon(self):
         # After time (defined in config.json) update information in case node has new ip
-        print "Daemon started"
+        logging.debug("Daemon started")
         while (True):
             # Build request
             #Data should be Net, sys, and stats
@@ -49,12 +54,12 @@ class Agent:
             self.update_sys()
             self.gather_net_stats()
             self.report_stats()
-            print "Stats reported. Waiting " + str(self.poll_time) + " seconds"
+            logging.debug("Stats reported. Waiting " + str(self.poll_time) + " seconds")
             time.sleep(self.poll_time)
 
     '''Get network information from system'''
     def update_net(self):
-        print "Updating network info"
+        logging.debug("Updating network info")
         # Look through all interfaces and get ip addresses
         for interface in netifaces.interfaces():
             if (not "lo" in interface):
@@ -63,7 +68,7 @@ class Agent:
                     for i in addr_info[k]:
                         if (not len(i['addr']) == 17):
                             tmp_ip = i['addr']
-                            print 'ip addr :' + tmp_ip
+                            logging.debug('ip addr :' + tmp_ip)
                             #if (len(tmp_ip) == 31):
                                 # Cut metadata from IPv6 addr
                             #    tmp_ip = tmp_ip.split('%')[0]
@@ -75,17 +80,17 @@ class Agent:
 
         for interface in self.interface_dict:
             if(IP(self.interface_dict[interface]).iptype() == "PUBLIC"):
-                print "Public address found :" + self.interface_dict[interface]
+                logging.debug("Public address found :" + self.interface_dict[interface])
                 self.node_ip = self.interface_dict[interface]
             else:
-                print "Discarding private ip " + self.interface_dict[interface]
+                logging.debug("Discarding private ip " + self.interface_dict[interface])
         if self.node_ip == None and len(self.interface_dict)>0:
             self.node_ip = self.interface_dict.values()[0]
 
 
     '''Get information about the system'''
     def update_sys(self):
-        print "Getting system info"
+        logging.debug("Getting system info")
         self.load = os.getloadavg()
         self.up_time = uptime()
         self.sys_stats = {'load':self.load, 'uptime':self.up_time}
@@ -94,10 +99,10 @@ class Agent:
     '''Perform network tests against anchor nodes'''
     def gather_net_stats(self):
         #Do ping to all anchor nodes
-        print "Gathering network stats"
+        logging.debug("Gathering network stats")
         self.anchor_stats = {}
         for anchor_ip in self.anchors:
-            print "Trying ping to " + anchor_ip
+            logging.debug("Trying ping to " + anchor_ip)
             try:
                 ping_response = pyping.ping(anchor_ip)
                 if(ping_response.ret_code == 0):
@@ -108,22 +113,22 @@ class Agent:
                 latency = -1
                 logging.warning("Not root. Cannot perform ping.")
 
-
+            logging.debug("Latency to anchor " + anchor_ip + " :" +  str(latency))
             #Do Iperf here.
             throughput = -1
 
             #Check to see if not osx (does not work with osx)
             #if(not "Darwin" in os.uname()):
-            print "Trying iperf to " + anchor_ip
+            logging.debug("Trying iperf to " + anchor_ip)
             try:
 
-                print "Doing iperf now"
+                logging.debug("Doing iperf now")
                 #result = json.loads(call("iperf3 -c " +  anchor_ip  + " -J", shell=True))
 
                 exitcode, out, err = self.get_exitcode_stdout_stderr("iperf3 -c " +  anchor_ip  + " -J")
                 iperf_result = json.loads(out)
                 throughput = int(iperf_result['end']['sum_received']['bits_per_second'])/1024/1024
-                print "Throughput to anchor :" + anchor_ip + " at " + str(throughput) + "mbps"
+                logging.debug("Throughput to anchor :" + anchor_ip + " at " + str(throughput) + "mbps")
             except Exception as e:
                 logging.warning("Iperf test to anchor %s failed because %s", anchor_ip, e)
             #else:
@@ -132,13 +137,12 @@ class Agent:
             #Do tracert here
             hops = 10
 
-            print "stats complete, returning information"
             self.anchor_stats[anchor_ip] = {"latency":latency, "throughput":throughput, "hops": hops}
             return self.anchor_stats
 
     '''Send all stats to discovery server'''
     def report_stats(self):
-        print "Sending stats"
+        logging.debug("Sending stats to %s", self.server_ip)
         data = {"ip": self.node_ip, "anchor_stats": self.anchor_stats, "system_stats": self.sys_stats}
         req = urllib2.Request('http://' + self.server_ip + ':61112/nodes/register_node')
         req.add_header('Content-Type', 'application/json')
