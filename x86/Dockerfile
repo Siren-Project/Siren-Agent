@@ -16,4 +16,4 @@ RUN pip install pyping
 RUN pip install iperf3
 RUN git clone https://github.com/lyndon160/Siren-Agent.git
 
-CMD python /Agent.py
+CMD cd Siren-Agent && python Agent.py

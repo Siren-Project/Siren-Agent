@@ -28,7 +28,8 @@ class Agent:
             self.anchors = self.data['anchor_nodes']
 
         # Get node ip. This might not get the right IP address but will be changed if public ip is given
-        self.node_ip = socket.gethostbyname(socket.gethostname())
+        # Do not use gethostname as container will have different hostname
+        self.node_ip = None#socket.gethostbyname(socket.gethostname())
         #    ip_type = IP(node_ip).iptype()
 
         self.interface_dict = {}
@@ -68,6 +69,9 @@ class Agent:
             if(IP(self.interface_dict[interface]).iptype() == "PUBLIC"):
                 print "Public address found :" + self.interface_dict[interface]
                 self.node_ip = self.interface_dict[interface]
+        if self.node_ip == None and len(self.interface_dict)>0:
+            self.node_ip = self.interface_dict.values()[0]
+
 
     '''Get information about the system'''
     def update_sys(self):
