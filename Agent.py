@@ -95,6 +95,7 @@ class Agent:
         print "Gathering network stats"
         self.anchor_stats = {}
         for anchor_ip in self.anchors:
+            print "Trying ping to " + anchor_ip
             try:
                 ping_response = pyping.ping(anchor_ip)
                 if(ping_response.ret_code == 0):
@@ -111,6 +112,7 @@ class Agent:
 
             #Check to see if not osx (does not work with osx)
             if(not "Darwin" in os.uname()):
+                print "Trying iperf to " + anchor_ip
                 client = iperf3.Client()
                 client.duration = 10
                 client.server_hostname = anchor_ip
