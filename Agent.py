@@ -7,10 +7,12 @@ import time
 import netifaces
 import os
 from IPy import IP
-import iperf3
+
+import shlex
+from subprocess import Popen, PIPE
 from uptime import uptime
 import pyping
-
+from subprocess import call
 
 
 '''Updates discovery database of presence of a Fog compute node'''
@@ -111,20 +113,21 @@ class Agent:
             throughput = -1
 
             #Check to see if not osx (does not work with osx)
-            if(not "Darwin" in os.uname()):
-                print "Trying iperf to " + anchor_ip
-                try:
-                    client = iperf3.Client()
-                    client.duration = 10
-                    client.server_hostname = anchor_ip
-                    client.port = 5001
-                    print "Doing iperf now"
-                    result = client.run()
-                    throughput = result.sent_Mbps
-                except Exception as e:
-                    logging.warning("Iperf test to anchor %s failed because %s", anchor_ip, e)
-            else:
-                logging.warning("OSX not supported")
+            #if(not "Darwin" in os.uname()):
+            print "Trying iperf to " + anchor_ip
+            try:
+
+                print "Doing iperf now"
+                #result = json.loads(call("iperf3 -c " +  anchor_ip  + " -J", shell=True))
+
+                exitcode, out, err = self.get_exitcode_stdout_stderr("iperf3 -c " +  anchor_ip  + " -J")
+                iperf_result = json.loads(out)
+                throughput = int(iperf_result['end']['sum_received']['bits_per_second'])/1024/1024
+                print "Throughput to anchor :" + anchor_ip + " at " + str(throughput) + "mbps"
+            except Exception as e:
+                logging.warning("Iperf test to anchor %s failed because %s", anchor_ip, e)
+            #else:
+                #logging.warning("OSX not supported")
 
             #Do tracert here
             hops = 10
@@ -150,6 +153,17 @@ class Agent:
             else:
                 retry = False
 
+    def get_exitcode_stdout_stderr(self,  cmd):
+        """
+        Execute the external command and get its exitcode, stdout and stderr.
+        """
+        args = shlex.split(cmd)
+
+        proc = Popen(args, stdout=PIPE, stderr=PIPE)
+        out, err = proc.communicate()
+        exitcode = proc.returncode
+        #
+        return exitcode, out, err
 
 if __name__ == '__main__':
     Agent()

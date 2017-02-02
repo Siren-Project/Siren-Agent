@@ -1,6 +1,5 @@
 FROM alpine:latest
 
-RUN apk add --no-cache iperf3
 RUN apk add --no-cache python
 RUN apk add --no-cache python-dev
 RUN apk add --no-cache py-pip
@@ -13,7 +12,7 @@ RUN pip install netifaces
 RUN pip install IPy
 RUN pip install uptime
 RUN pip install pyping
-RUN pip install iperf3
+
 RUN git clone https://github.com/lyndon160/Siren-Agent.git
 
 CMD cd Siren-Agent && python Agent.py
