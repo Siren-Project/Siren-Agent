@@ -118,6 +118,7 @@ class Agent:
                     client.duration = 10
                     client.server_hostname = anchor_ip
                     client.port = 5001
+                    print "Doing iperf now"
                     result = client.run()
                     throughput = result.sent_Mbps
                 except Exception as e:
@@ -128,7 +129,7 @@ class Agent:
             #Do tracert here
             hops = 10
 
-
+            print "stats complete, returning information"
             self.anchor_stats[anchor_ip] = {"latency":latency, "throughput":throughput, "hops": hops}
             return self.anchor_stats
 
