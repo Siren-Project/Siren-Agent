@@ -113,12 +113,15 @@ class Agent:
             #Check to see if not osx (does not work with osx)
             if(not "Darwin" in os.uname()):
                 print "Trying iperf to " + anchor_ip
-                client = iperf3.Client()
-                client.duration = 10
-                client.server_hostname = anchor_ip
-                client.port = 5001
-                result = client.run()
-                throughput = result.sent_Mbps
+                try:
+                    client = iperf3.Client()
+                    client.duration = 10
+                    client.server_hostname = anchor_ip
+                    client.port = 5001
+                    result = client.run()
+                    throughput = result.sent_Mbps
+                except Exception as e:
+                    logging.warning("Iperf test to anchor %s failed because %s", anchor_ip, e)
             else:
                 logging.warning("OSX not supported")
 
