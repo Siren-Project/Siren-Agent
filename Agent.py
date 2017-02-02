@@ -64,11 +64,11 @@ class Agent:
                                 # Cut metadata from IPv6 addr
                                 tmp_ip = tmp_ip.split('%')[0]
                                 print 'ip addr :' + tmp_ip
-                            try:
-                                IP(tmp_ip)
-                                self.interface_dict[interface] = tmp_ip
-                            except:
-                                logging.warning("Ignoring invalid IP %s", tmp_ip)
+                                try:
+                                    IP(tmp_ip)
+                                    self.interface_dict[interface] = tmp_ip
+                                except:
+                                    logging.warning("Ignoring invalid IP %s", tmp_ip)
 
         for interface in self.interface_dict:
             if(IP(self.interface_dict[interface]).iptype() == "PUBLIC"):
