@@ -63,6 +63,7 @@ class Agent:
                             if (len(tmp_ip) == 31):
                                 # Cut metadata from IPv6 addr
                                 tmp_ip = tmp_ip.split('%')[0]
+                                print 'ip addr :' + tmp_ip
                             try:
                                 IP(tmp_ip)
                                 self.interface_dict[interface] = tmp_ip
