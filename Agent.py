@@ -26,6 +26,7 @@ class Agent:
             self.server_ip = self.data['server_ip']
             self.poll_time = self.data['poll_time']
             self.anchors = self.data['anchor_nodes']
+            print self.anchors
 
         # Get node ip. This might not get the right IP address but will be changed if public ip is given
         # Do not use gethostname as container will have different hostname
@@ -132,7 +133,7 @@ class Agent:
             hops = 10
 
             self.anchor_stats[anchor_ip] = {"latency": latency, "throughput": throughput, "hops": hops}
-            return self.anchor_stats
+        return self.anchor_stats
 
     def report_stats(self):
         """
