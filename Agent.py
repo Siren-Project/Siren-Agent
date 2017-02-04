@@ -37,7 +37,6 @@ class Agent:
 
         self.agent_daemon()
 
-
     def agent_daemon(self):
         """Repeats tests and reports to discovery server"""
         # After time (defined in config.json) update information in case node has new ip
@@ -62,7 +61,7 @@ class Agent:
                 addr_info = netifaces.ifaddresses(interface)
                 for k in addr_info:
                     for i in addr_info[k]:
-                        if (not len(i['addr']) == 17):
+                        if not len(i['addr']) == 17:
                             tmp_ip = i['addr']
                             logging.debug('ip addr :' + tmp_ip)
                             # if (len(tmp_ip) == 31):
@@ -80,7 +79,7 @@ class Agent:
                 self.node_ip = self.interface_dict[interface]
             else:
                 logging.debug("Discarding private ip " + self.interface_dict[interface])
-        if self.node_ip == None and len(self.interface_dict)>0:
+        if self.node_ip == None and len(self.interface_dict) > 0:
             self.node_ip = self.interface_dict.values()[0]
 
     def update_sys(self):
@@ -88,7 +87,8 @@ class Agent:
         logging.debug("Getting system info")
         self.load = os.getloadavg()
         self.up_time = uptime()
-        self.sys_stats = {'load':self.load, 'uptime':self.up_time}
+        # TODO get disk information
+        self.sys_stats = {'load': self.load, 'uptime': self.up_time}
         return self.sys_stats
 
     def gather_net_stats(self):
