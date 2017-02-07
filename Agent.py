@@ -79,6 +79,7 @@ class Agent:
                 self.node_ip = self.interface_dict[interface]
             else:
                 logging.debug("Discarding private ip " + self.interface_dict[interface])
+        #If no public ip found then pick first ip
         if self.node_ip == None and len(self.interface_dict) > 0:
             self.node_ip = self.interface_dict.values()[0]
 
@@ -87,8 +88,10 @@ class Agent:
         logging.debug("Getting system info")
         self.load = os.getloadavg()
         self.up_time = uptime()
-        # TODO get disk information
-        self.sys_stats = {'load': self.load, 'uptime': self.up_time}
+
+        filesystem = os.statvfs('/')
+        free_bytes = filesystem.f_bavail * filesystem.f_frsize
+        self.sys_stats = {'load': self.load, 'uptime': self.up_time, 'free_disk': free_bytes/1024/1024}
         return self.sys_stats
 
     def gather_net_stats(self):
