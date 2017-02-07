@@ -95,7 +95,7 @@ class Agent:
         """Perform network tests against anchor nodes"""
         # Do ping to all anchor nodes
         logging.debug("Gathering network stats")
-        self.anchor_stats = {}
+        self.anchor_stats = []
         for anchor_ip in self.anchors:
             logging.debug("Trying ping to " + anchor_ip)
             try:
@@ -132,7 +132,7 @@ class Agent:
             # TODO Do trace route to anchor here
             hops = 10
 
-            self.anchor_stats[anchor_ip] = {"latency": latency, "throughput": throughput, "hops": hops}
+            self.anchor_stats.append({"ip":anchor_ip,"latency": latency, "throughput": throughput, "hops": hops})
         return self.anchor_stats
 
     def report_stats(self):
