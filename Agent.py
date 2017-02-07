@@ -17,7 +17,7 @@ class Agent:
     def __init__(self):
         # Read server ip
 
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s', filename='agent.log')
 
         logging.debug("Starting agent")
 
