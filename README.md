@@ -12,3 +12,5 @@ or
 
 `./run_agent.sh`
 
+# Sample of collected information
+

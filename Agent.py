@@ -15,12 +15,12 @@ import pyping
 class Agent:
     """Updates discovery database of presence of a Fog compute node"""
     def __init__(self):
-        # Read server ip
+
 
         logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s', filename='agent.log')
 
         logging.debug("Starting agent")
-
+        # Read configuration file.
         with open('config.json') as json_data:
             self.data = json.load(json_data)
             self.server_ip = self.data['server_ip']
@@ -31,6 +31,8 @@ class Agent:
         # Get node ip. This might not get the right IP address but will be changed if public ip is given
         # Do not use gethostname as container will have different hostname
         self.node_ip = None
+
+        # Comment out to get type of interface. (The usefulness of this is still to be determined)
         #    ip_type = IP(node_ip).iptype()
 
         self.interface_dict = {}
@@ -112,14 +114,12 @@ class Agent:
                 logging.warning("Not root. Cannot perform ping.")
 
             logging.debug("Latency to anchor " + anchor_ip + " :" + str(latency))
+
             # Do Iperf here.
             throughput = -1
 
             logging.debug("Trying iperf to " + anchor_ip)
             try:
-
-                logging.debug("Doing iperf now")
-
                 exitcode, out, err = self.get_exitcode_stdout_stderr("iperf3 -c " + anchor_ip + " -n 1K -J")
 
                 iperf_result = json.loads(out)
@@ -147,7 +147,7 @@ class Agent:
         req = urllib2.Request('http://' + self.server_ip + ':61112/nodes/register_node')
         req.add_header('Content-Type', 'application/json')
         retry = True
-        while (retry):
+        while retry:
             try:
                 response = urllib2.urlopen(req, json.dumps(data))
             except urllib2.HTTPError as e:
